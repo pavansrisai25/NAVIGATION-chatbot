@@ -1,0 +1,547 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GGU Campus Navigation Assistant</title>
+    <style>
+        :root {
+            --primary: #fdfeff;
+            --secondary: #ca2b2b;
+            --success: #070504;
+            --info: #be2525;
+            --warning: #f6c23e;
+            --danger: #e74a3b;
+            --light: #f6f8ff;
+            --dark: #5a5c69;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgb(103, 16, 16);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .bot-message .message-bubble {
+    background: white !important;
+    color: black !important;   /* Fix all normal text */
+    border: 1px solid #e3e6f0;
+    border-bottom-left-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Make ALL links inside bot messages blue and underlined */
+.bot-message .message-bubble a {
+    color: blue !important;
+    text-decoration: underline !important;
+}
+
+/* Make visited links a different color (optional) */
+.bot-message .message-bubble a:visited {
+    color: purple !important;
+}
+        
+        header {
+            background: var(--primary);
+            color: rgb(214, 21, 21);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        
+        header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        .campus-info {
+            background: var(--info);
+            padding: 15px;
+            text-align: center;
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        .chat-container {
+            padding: 20px;
+            height: 450px;
+            overflow-y: auto;
+            background: var(--light);
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+        }
+        
+        .user-message {
+            justify-content: flex-end;
+        }
+        
+        .bot-message {
+            justify-content: flex-start;
+        }
+        
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            line-height: 1.5;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message .message-bubble {
+            background: var(--primary);
+            color: rgb(23, 21, 21);
+            border-bottom-right-radius: 5px;
+        }
+        
+        .bot-message .message-bubble {
+            background: rgb(255, 255, 255);
+            color: var(--dark);
+            border: 1px solid #e3e6f0;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .bot-message .message-bubble a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .bot-message .message-bubble a:hover {
+            text-decoration: underline;
+        }
+        
+        .input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e3e6f0;
+            display: flex;
+            gap: 10px;
+        }
+        
+        #message-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #d1d3e2;
+            border-radius: 30px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        #message-input:focus {
+            border-color: var(--primary);
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 30px;
+            background: var(--primary);
+            color: rgb(253, 249, 249);
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        button{
+            background: #010205;
+        }
+        
+        .voice-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--success);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .voice-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .voice-btn.listening {
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(28, 200, 138, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(28, 200, 138, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(28, 200, 138, 0); }
+        }
+        
+        .mic-icon {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .audio-player {
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px 20px;
+            background: #f0f2f5;
+            border-top: 1px solid #e3e6f0;
+        }
+        
+        .suggestion {
+            padding: 8px 15px;
+            background: white;
+            border: 1px solid #d1d3e2;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .suggestion:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 18px;
+            background: white;
+            border-radius: 18px;
+            border: 1px solid #e3e6f0;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--secondary);
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+    
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .container {
+        max-width: 100%;
+        width: 100%;
+        margin: 0 auto;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .message-bubble {
+        max-width: 90%;
+        font-size: 0.95rem;
+    }
+
+    .suggestions {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .input-area {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    #message-input, button {
+        width: 100%;
+    }
+
+    .voice-btn {
+        width: 100%;
+        height: 45px;
+        justify-content: center;
+    }
+}
+
+body, html {
+    height: 100%;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.chat-container {
+    flex: 1;
+    overflow-y: auto;
+}
+
+</style>
+</head>
+<body>
+    <div class="container">
+        <!-- <header>
+            <h1> GIET Campus Navigation Assistant</h1>
+            <p>Your guide to navigating the college campus</p>
+        </header> -->
+        <!-- <header>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <img src="https://www.facebook.com/images/fb_icon_325x325.png" alt="GIET Logo" style="width: 50px; height: 50px; border-radius: 10px;">
+                    <div>
+                        <h1>GIET Campus Navigation Assistant</h1>
+                        <p>Your guide to navigating the college campus</p>
+                    </div>
+                </div>
+            </div>
+        </header> -->
+        <!-- <header>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <h1>GIET Campus Navigation Assistant</h1>
+                    <p>Your guide to navigating the college campus</p>
+                </div>
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwGYuvgnY2F1U9PsUt2jV5L4qAZIgB8lvUXA&s" 
+                     alt="GIET Logo" 
+                     style="width: 50px; height: 50px; border-radius: 10px;">
+            </div>
+        </header> -->
+        <header>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="text-align: left;">
+                    <h1 style="margin: 0;">GGU Campus Navigation Assistant</h1>
+                    <p style="margin: 0;">Your guide to navigating the college campus</p>
+                </div>
+                <img src="data:image/webp;base64,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"
+     alt="GGU Logo"
+     style="width: 250px; height: 100px; object-fit: contain; border-radius: 20px;">
+        
+            </div>
+        </header>
+        
+        <div class="campus-info">
+            <p>Ask for directions, find locations, or get information about campus facilities</p>
+        </div>
+        
+        <div class="chat-container" id="chat-container">
+            <div class="message bot-message">
+                <div class="message-bubble">
+                    🎓 Welcome to GGU Campus Navigation Assistant!<br><br>
+                    I can help you with:<br>
+                    - Directions between locations<br>
+                    - Finding campus facilities<br>
+                    - Information about buildings<br>
+                    - Campus map<br><br>
+                    Try asking: "How to get from main block to library?" or click the mic to use voice commands!
+                </div>
+            </div>
+        </div>
+        
+        <div class="suggestions">
+            <div class="suggestion" onclick="sendSuggestion('Where is the library?')">Where is the library?</div>
+            <!-- <div class="suggestion" onclick="sendSuggestion('How to go from gate to food court')">Gate to Food Court</div> -->
+            <!-- <div class="suggestion" onclick="sendSuggestion('Info about amphitheatre')">Amphitheatre Info</div> -->
+            <div class="suggestion" onclick="sendSuggestion('Show campus map')">Campus Map</div>
+        </div>
+        
+        <div class="input-area">
+            <input type="text" id="message-input" placeholder="Type your question here..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">Send</button>
+            <div class="voice-btn" id="voice-btn" title="Voice Command">
+                <svg class="mic-icon" viewBox="0 0 24 24" fill="white">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const messageInput = document.getElementById('message-input');
+        const voiceBtn = document.getElementById('voice-btn');
+        
+        // Speech recognition setup
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            
+            recognition.onstart = function() {
+                voiceBtn.classList.add('listening');
+            };
+            
+            recognition.onend = function() {
+                voiceBtn.classList.remove('listening');
+            };
+            
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                messageInput.value = transcript;
+                sendMessage();
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error', event.error);
+                addMessage(`❌ Speech recognition error: ${event.error}`, 'bot');
+                voiceBtn.classList.remove('listening');
+            };
+            
+            voiceBtn.addEventListener('click', () => {
+                if (voiceBtn.classList.contains('listening')) {
+                    recognition.stop();
+                } else {
+                    try {
+                        recognition.start();
+                    } catch (error) {
+                        console.error('Speech recognition error:', error);
+                        addMessage('❌ Speech recognition not available in your browser', 'bot');
+                    }
+                }
+            });
+        } else {
+            voiceBtn.style.display = 'none';
+            console.warn('Speech Recognition API not supported');
+        }
+        
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble';
+            
+            // Convert newlines to <br> and create links for URLs
+            const formattedText = text.replace(/\n/g, '<br>')
+                .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+            
+            bubble.innerHTML = formattedText;
+            messageDiv.appendChild(bubble);
+            chatContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        function showTyping() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot-message';
+            typingDiv.id = 'typing-indicator';
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'typing-indicator';
+            
+            bubble.innerHTML = `
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            `;
+            
+            typingDiv.appendChild(bubble);
+            chatContainer.appendChild(typingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        function hideTyping() {
+            const typing = document.getElementById('typing-indicator');
+            if (typing) {
+                typing.remove();
+            }
+        }
+        
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+            
+            // Add user message to chat
+            addMessage(message, 'user');
+            messageInput.value = '';
+            
+            // Show typing indicator
+            showTyping();
+            
+            // Send to server
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideTyping();
+                addMessage(data.response, 'bot');
+            })
+            .catch(error => {
+                hideTyping();
+                console.error('Error:', error);
+                addMessage('❌ Sorry, something went wrong. Please try again.', 'bot');
+            });
+        }
+        
+        function sendSuggestion(text) {
+            messageInput.value = text;
+            sendMessage();
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        // Example of how you might handle voice responses
+        function handleVoiceResponse(audioUrl) {
+            const audio = new Audio(audioUrl);
+            audio.play();
+        }
+    </script>
+</body>
+
+</html>
